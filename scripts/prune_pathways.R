@@ -254,7 +254,12 @@ main <- function() {
   }
 
   # --- Nested pairs: always keep the smaller (more specific) pathway ---
+  # Sort by descending size of the larger pathway so that broad containment
+  # relationships are resolved before narrower ones, preventing chain gaps.
   nest_pairs <- flagged[flag_type == "nested"]
+  nest_pairs[, .max_size := pmax(n_a, n_b)]
+  setorder(nest_pairs, -.max_size)
+  nest_pairs[, .max_size := NULL]
 
   for (k in seq_len(nrow(nest_pairs))) {
     pa <- nest_pairs$pathway_a[k]
@@ -267,6 +272,15 @@ main <- function() {
     status[drop_pw]         <- "pruned"
     represented_by[drop_pw] <- keep
     reason[drop_pw]         <- paste0("nested_in_", keep)
+  }
+
+  # Resolve chains: a pathway may have been pruned in favour of another pathway
+  # that was itself later pruned.  Follow each represented_by pointer until it
+  # lands on a retained pathway.
+  repeat {
+    pruned_reps <- status[represented_by] == "pruned"
+    if (!any(pruned_reps)) break
+    represented_by[pruned_reps] <- represented_by[represented_by[pruned_reps]]
   }
 
   retained_ids <- pathway_ids[status == "retained"]
