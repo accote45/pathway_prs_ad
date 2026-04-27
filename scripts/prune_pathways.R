@@ -215,7 +215,7 @@ main <- function() {
   sp[, intersect := as.numeric(intersect)]
 
   sp[, n_a := sizes[i]]
-  sp[, n_b := sizes[j]
+  sp[, n_b := sizes[j]]
   sp[, containment_a_in_b := intersect / n_a]
   sp[, containment_b_in_a := intersect / n_b]
   sp[, jaccard             := intersect / (n_a + n_b - intersect)]
