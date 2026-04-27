@@ -18,8 +18,8 @@ INPUT_FILES <- list(
   "MitoCarta"  = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/mitocarta/qced_data/MitoCarta.gmt",
   "MSigDB"    = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/msigdb/c2.all.v2023.2.Hs.symbols.gmt_filtered.txt",   # single combined MSigDB file
   "MGI"       = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/mgi/qced_data/MGI.gmt",
-  "DSigDB"     = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/dsigdb/qced_data/DSigDB.gmt"
-  "ClinPGx"           = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/clinpgx/qced_data/pharmgkb_pathways.gmt",
+  "DSigDB"     = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/dsigdb/qced_data/DSigDB.gmt",
+  "ClinPGx"           = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/clinpgx/qced_data/pharmgkb_pathways.gmt"
   #"Coexpression_WGCNA" = "path/to/Coexpression.gmt"
 )
 OUTPUT_DIR <- "output"
