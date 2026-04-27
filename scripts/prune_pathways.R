@@ -13,13 +13,13 @@ options(stringsAsFactors = FALSE)
 # For MSigDB, provide a single combined GMT file under the key "MSigDB".
 # Sub-collection priorities are resolved automatically via MSIGDB_PREFIX_MAP.
 INPUT_FILES <- list(
-  "GO_BP"      = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/gene_ontology/qced_data/GO.gmt",
+  "GO"         = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/gene_ontology/qced_data/GO.gmt",
   "SynGO"      = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/synGO/qced_data/SynGO.gmt",
   "MitoCarta"  = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/mitocarta/qced_data/MitoCarta.gmt",
-  "MSigDB"    = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/msigdb/c2.all.v2023.2.Hs.symbols.gmt_filtered.txt",   # single combined MSigDB file
-  "MGI"       = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/mgi/qced_data/MGI.gmt",
+  "MSigDB"     = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/msigdb/qced_data/c2.all.v2023.2.Hs.symbols.gmt_filtered.txt",
+  "MGI"        = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/mgi/qced_data/MGI.gmt",
   "DSigDB"     = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/dsigdb/qced_data/DSigDB.gmt",
-  "ClinPGx"           = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/clinpgx/qced_data/pharmgkb_pathways.gmt"
+  "ClinPGx"    = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/clinpgx/qced_data/pharmgkb_pathways.gmt"
   #"Coexpression_WGCNA" = "path/to/Coexpression.gmt"
 )
 OUTPUT_DIR <- "output"
@@ -30,47 +30,23 @@ THRESH_NESTED_MAX  <- 0.8   # max(containment) > this  \
 THRESH_NESTED_MIN  <- 0.5   # min(containment) < this  |=> nested
 THRESH_SIZE_RATIO  <- 0.1   # size_ratio       > this  /
 
-# MSigDB sub-collection prefix map.
-# Keys are the pathway-name prefixes as they appear in the MSigDB GMT file.
-# Values are the source names used in SOURCE_PRIORITY below.
-# Entries are checked in order; the first matching prefix wins.
-# Anything that matches no prefix is assigned "MSigDB_C2_CP".
-MSIGDB_PREFIX_MAP <- c(
-  "REACTOME_"  = "MSigDB_C2_CP_REACTOME",
-  "KEGG_"      = "MSigDB_C2_CP_KEGG",
-  "WP_"        = "MSigDB_C2_CP_WIKIPATHWAYS"
-)
-
 # Source priority: higher number = preferred to keep when resolving near-duplicates.
 # Sources are extracted as the prefix of pathway_id before the first "__".
 # "Coexpression" is matched by the prefix "Coexpression_".
 SOURCE_PRIORITY <- c(
-  "SynGO"                     = 10L,
-  "MitoCarta"                 = 10L,
-  "MSigDB_C2_CP_REACTOME"     = 9L,
-  "MSigDB_C2_CP_KEGG"         = 8L,
-  "MSigDB_C2_CP_WIKIPATHWAYS" = 7L,
-  "MSigDB_C2_CP"              = 6L,
-  "GO_BP"                     = 5L,
-  "MGI"                       = 4L,
-  "DSigDB"                    = 3L,
-  "ClinPGx"                   = 2L,
-  "Coexpression"              = 1L   # matched by "Coexpression_" prefix
+  "SynGO"        = 10L,
+  "MitoCarta"    = 10L,
+  "MSigDB"       = 6L,
+  "GO"           = 5L,
+  "MGI"          = 4L,
+  "DSigDB"       = 3L,
+  "ClinPGx"      = 2L,
+  "Coexpression" = 1L   # matched by "Coexpression_" prefix
 )
 
 # Parse optional command-line overrides: Rscript prune_pathways.R <outdir>
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) >= 1) OUTPUT_DIR <- args[1]
-
-# ==============================================================================
-# Helper: resolve MSigDB sub-collection for a single pathway name
-# ==============================================================================
-msigdb_source <- function(pw_name) {
-  for (prefix in names(MSIGDB_PREFIX_MAP)) {
-    if (startsWith(pw_name, prefix)) return(MSIGDB_PREFIX_MAP[[prefix]])
-  }
-  "MSigDB_C2_CP"
-}
 
 # ==============================================================================
 # Helper: look up source priority for a named character vector of sources
@@ -120,20 +96,8 @@ main <- function() {
     }
     message("  Reading [", src, "] from: ", fpath)
     chunk <- read_gmt(fpath)
-
-    if (src == "MSigDB") {
-      # Detect sub-collection from each pathway's name prefix, then prepend
-      # the resolved source name so SOURCE_PRIORITY lookups work correctly.
-      unique_pws <- unique(chunk$pathway_id)
-      src_map    <- setNames(vapply(unique_pws, msigdb_source, character(1L)),
-                             unique_pws)
-      chunk[, pathway_id := paste0(src_map[pathway_id], "__", pathway_id)]
-      message("    MSigDB sub-collections detected: ",
-              paste(sort(unique(sub("__.*", "", chunk$pathway_id))), collapse = ", "))
-    } else {
-      # Prepend source prefix — avoids collisions across databases
-      chunk[, pathway_id := paste0(src, "__", pathway_id)]
-    }
+    # Prepend source prefix — avoids collisions across databases
+    chunk[, pathway_id := paste0(src, "__", pathway_id)]
     chunk
   })
 
