@@ -11,7 +11,6 @@ options(stringsAsFactors = FALSE)
 # Named list: source prefix (used in SOURCE_PRIORITY) => path to GMT file.
 # Add/remove entries to match your available databases.
 # For MSigDB, provide a single combined GMT file under the key "MSigDB".
-# Sub-collection priorities are resolved automatically via MSIGDB_PREFIX_MAP.
 INPUT_FILES <- list(
   "GO"         = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/gene_ontology/qced_data/GO.gmt",
   "SynGO"      = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/synGO/qced_data/SynGO.gmt",
@@ -28,7 +27,7 @@ OUTPUT_DIR <- "output"
 THRESH_NEAR_DUP    <- 0.8   # min(containment) > this  => near_duplicate
 THRESH_NESTED_MAX  <- 0.8   # max(containment) > this  \
 THRESH_NESTED_MIN  <- 0.5   # min(containment) < this  |=> nested
-THRESH_SIZE_RATIO  <- 0.1   # size_ratio       > this  /
+THRESH_SIZE_RATIO  <- 0.3   # size_ratio       > this  /
 
 # Source priority: higher number = preferred to keep when resolving near-duplicates.
 # Sources are extracted as the prefix of pathway_id before the first "__".
