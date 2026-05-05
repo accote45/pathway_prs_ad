@@ -1,0 +1,147 @@
+# R Script: Pathway Redundancy Pruning for Pathway PRS Analysis
+
+## Objective
+Write an R script that takes a collection of gene sets pooled from multiple pathway
+databases and returns a non-redundant subset suitable for pathway PRS analysis.
+Redundancy is defined by gene membership overlap, not by source or annotation.
+
+## Input
+A single file (path provided as a command-line argument or variable at the top of
+the script) in GMT format with columns:
+- `pathway_name` (unique identifier)
+- `placeholder` (identifier or placeholder)
+- `gene` (one row per gene per pathway; Ensembl IDs)
+
+Support both formats; auto-detect by file extension (`.gmt` vs `.tsv`/`.txt`).
+
+Assume pathways have already been size-filtered to 10–2000 genes. Do not re-filter.
+
+## Outputs
+Write to an output directory (also parameterized):
+1. `pathways_retained.tsv` — long format, same schema as input, containing only
+   retained pathways.
+2. `pathways_retained.gmt` — GMT version of the retained set.
+3. `pruning_map.tsv` — one row per INPUT pathway with columns:
+   - `pathway_id`, `pathway_name`, `source`, `n_genes`
+   - `status` ("retained" or "pruned")
+   - `represented_by` (pathway_id of the retained pathway that absorbed this one;
+     equal to pathway_id itself if retained)
+   - `reason` ("kept", "near_duplicate_of_<id>", "nested_in_<id>")
+4. `redundancy_pairs.tsv` — all flagged pairs with columns:
+   - `pathway_a`, `pathway_b`, `n_a`, `n_b`, `intersect`,
+     `containment_a_in_b`, `containment_b_in_a`, `jaccard`, `size_ratio`,
+     `flag_type` ("near_duplicate" or "nested")
+5. `summary.txt` — counts before/after, broken down by source.
+
+## Core Logic
+
+### Step 1: Load and validate
+- Parse input into a long-format data frame.
+- Drop duplicate (pathway_id, gene) rows.
+- Verify all pathways have 10–2000 genes; warn and drop any that don't (shouldn't
+  happen given the user's preprocessing, but guard against it).
+- Assign each pathway a numeric index 1..N for matrix ops.
+
+### Step 2: Build sparse gene-membership matrix
+- Use the `Matrix` package.
+- Construct an N × G sparse binary matrix `M` where rows are pathways,
+  columns are genes, entries are 1 if the gene is in the pathway.
+- Compute set sizes: `sizes <- rowSums(M)`.
+
+### Step 3: Compute pairwise intersections
+- `I <- tcrossprod(M)` gives the N × N intersection matrix (sparse, symmetric).
+- Set diagonal to 0 to ignore self-comparisons.
+- Only evaluate upper triangle for pair enumeration to avoid double-counting.
+
+### Step 4: Compute similarity metrics for all pairs with intersect > 0
+For each pair (a, b) with `I[a,b] > 0`:
+- `containment_a_in_b <- I[a,b] / sizes[a]`
+- `containment_b_in_a <- I[a,b] / sizes[b]`
+- `jaccard <- I[a,b] / (sizes[a] + sizes[b] - I[a,b])`
+- `size_ratio <- min(sizes[a], sizes[b]) / max(sizes[a], sizes[b])`
+
+Do this efficiently — extract nonzero entries from the sparse intersection matrix
+with `summary()` rather than looping over all N² pairs.
+
+### Step 5: Classify pairs
+Apply rules in this order; a pair gets the FIRST matching classification:
+
+1. **Near-duplicate**: `min(containment_a_in_b, containment_b_in_a) > 0.8`
+   → flag as `near_duplicate`.
+2. **Nested**: `max(containment_a_in_b, containment_b_in_a) > 0.8`
+   AND `min(containment_a_in_b, containment_b_in_a) < 0.5`
+   AND `size_ratio > 0.1`
+   → flag as `nested`.
+3. Otherwise: not flagged, both kept.
+
+The `size_ratio > 0.1` condition on nested pairs ensures we only drop a parent
+pathway when its child captures a substantial fraction of it. A tiny set nested in
+a huge set represents a genuinely different predictor and both are kept.
+
+### Step 6: Apply pruning decisions
+Use a single-pass greedy algorithm over flagged pairs. Maintain a vector `status`
+initialized to "retained" for all pathways, and a vector `represented_by`
+initialized to each pathway's own id.
+
+Process near-duplicate pairs first, then nested pairs:
+
+- **Near-duplicate (a, b)**: if both still "retained", drop one by source priority
+  (see below); mark it as pruned with `represented_by = <kept id>` and
+  `reason = "near_duplicate_of_<kept_id>"`. If one is already pruned, skip.
+- **Nested (a, b)**: if both still "retained", drop the LARGER one (i.e., keep
+  the more specific child). Mark pruned, set `represented_by = <smaller id>`,
+  `reason = "nested_in_<smaller_id>"`. If one is already pruned, skip.
+
+**Source priority for near-duplicate tie-breaking** (higher = preferred to keep):
+SynGO, MitoCarta                             [priority 10]
+MSigDB_C2_CP_REACTOME                        [priority 9]
+MSigDB_C2_CP_KEGG                            [priority 8]
+MSigDB_C2_CP_WIKIPATHWAYS                    [priority 7]
+MSigDB_C2_CP (other)                         [priority 6]
+GO_BP                                        [priority 5]
+MGI                                          [priority 4]
+DSigDB                                       [priority 3]
+ClinPGx                                      [priority 2]
+Coexpression_*                               [priority 1]
+
+
+
+Make the priority map a named vector at the top of the script so it's easy to edit.
+If two pathways have equal source priority, keep the one with the smaller gene set
+(more specific); if still tied, keep the lexicographically first `pathway_id` for
+deterministic output.
+
+Note: source priority applies ONLY to near-duplicates. Nested pairs are always
+resolved by size (keep smaller), regardless of source.
+
+### Step 7: Write outputs
+Write all five output files. Print a short summary to stdout:
+- N input pathways (by source)
+- N near-duplicate pairs, N nested pairs
+- N retained pathways (by source)
+- % reduction
+
+## Dependencies
+Use only: `Matrix`, `data.table` (or `readr` + `dplyr`), base R. Do not use
+`GeneOverlap` or other Bioconductor packages — keep it portable.
+
+## Performance target
+Should handle ~30,000 pathways × ~25,000 genes in under 5 minutes on a laptop.
+Sparse matrix ops (`tcrossprod`, `summary`) are essential; do not use nested loops
+over pathway pairs.
+
+## Code style
+- Single self-contained script, `prune_pathways.R`.
+- Parameters at the top: input path, output dir, thresholds (0.8 duplicate, 0.8/0.5
+  nested, 0.1 size ratio), source priority vector.
+- Comment each major step with a header matching the step numbers above.
+- Set `options(stringsAsFactors = FALSE)` and use explicit `check.names = FALSE`
+  where relevant.
+- Wrap the main logic in a `main()` function, call at bottom with
+  `if (!interactive()) main()`.
+
+## Sanity checks to include
+- After pruning, no two retained pathways should themselves meet the near-duplicate
+  or nested criteria. Add an assertion verifying this on the retained set.
+- Count of input pathways == count of rows in `pruning_map.tsv`.
+- Every `represented_by` id in `pruning_map.tsv` must exist in the retained set.
