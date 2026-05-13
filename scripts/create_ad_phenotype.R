@@ -3,6 +3,18 @@
 # read in covariates (age, sex, PCs)
 # get phenotype residuals
 
+
+# ancestry assignments: /sc/arion/projects/paul_oreilly/data/Biobanks/CrossBiobank_qc/GeneticDerived_Ancestry/admixture/data/UKB/ukb_ancestry_assignment.txt
+  ## will use ADMIXTURE proportion threshold of 80% to define AFR ancestry individual 
+  n=7,170
+
+# create ancestry assignment files
+awk 'NR>1 && $4=="AFR" {print $2}' /sc/arion/projects/paul_oreilly/data/Biobanks/CrossBiobank_qc/GeneticDerived_Ancestry/admixture/data/UKB/ukb_ancestry_assignment.txt > /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/afr_sample_ids_80pc.txt
+
+awk 'NR>1 && $4=="EUR" {print $2}' /sc/arion/projects/paul_oreilly/data/Biobanks/CrossBiobank_qc/GeneticDerived_Ancestry/admixture/data/UKB/ukb_ancestry_assignment.txt > /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/eur_sample_ids_80pc.txt
+
+
+
 # file purgatory:
     # don't need, same onset date as other file: /sc/arion/projects/paul_oreilly/lab/shared/pheno/clive/Alzheimer_disease_case.txt
 

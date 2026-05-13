@@ -1,11 +1,13 @@
 ## create master GMT file
 
-
 library(tidyverse)
 library(data.table)
 
 # Read celltype specificity GMT (no description/placeholder field)
 celltype_lines <- readLines("/sc/arion/projects/psychgen/cotea02_prset/judit_revisions/software/1kg_test/GeneExpressionLandscape/intermediate_files/celltype_specificity.gmt")
+
+# Keep only top 10th percentile (decile :10)
+celltype_lines <- celltype_lines[grepl("^[^\t]+:10\t", celltype_lines)]
 
 # Add PLACEHOLDER as second field to match standard GMT format: name\tdescription\tgenes...
 celltype_lines_fixed <- sapply(celltype_lines, function(line) {

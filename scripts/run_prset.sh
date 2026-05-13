@@ -2,11 +2,13 @@
 
 
 #BSUB -L /bin/sh
-#BSUB -n 24
+#BSUB -n 48
 #BSUB -J prsetexpr_nothreshold
-#BSUB -R rusage[mem=10000]
+#BSUB -R rusage[mem=2048]
+#BSUB -R select[mem>=2048]
+#BSUB -R span[hosts=1]
 #BSUB -q premium             # target queue for job execution
-#BSUB -W 12:00                # wall clock limit for job
+#BSUB -W 48:00                # wall clock limit for job
 #BSUB -P acc_psychgen             # project to charge time
 #BSUB -o o.prsetexpr_nothreshold
 #BSUB -e e.prsetexpr_nothreshold
@@ -27,15 +29,14 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --clump-p 1.000000 \
     --clump-r2 0.100000 \
     --x-range chr19:45000000-46000000 \
-    --extract /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177-qc.snplist \
+    #--extract /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177-qc.snplist \
     --gtf /sc/arion/projects/paul_oreilly/lab/cotea02/project/data/reference/Homo_sapiens.GRCh37.75.gtf.gz \
-    --keep /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb_phenofile_forprset.txt \
+    --keep /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/afr_sample_ids_80pc.txt \
     --msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/master_no_apoe.gmt \
     --num-auto 22 \
-    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/ad_case.control_prset_nothreshold \
+    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/ad_case.control_prset_nothreshold_afr \
     --pheno /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb_phenofile_forprset.txt \
     --pheno-col ad_resid \
-    --print-snp  \
     --set-perm 10000 \
     --target /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177_chr1.22 \
     --thread 48 \
@@ -43,6 +44,11 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/background_genes.txt \
     --wind-3 35kb \
     --wind-5 35kb
+
+
+
+
+
 
 
 
