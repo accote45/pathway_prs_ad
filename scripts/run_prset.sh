@@ -15,33 +15,33 @@
 
 ml R
 Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/projects/psychgen/cotea02_prset/PRSice_linux \
-    --snp SNP \
-    --pvalue P \
+    --snp rsid \
+    --pvalue p_value \
     --beta \
-    --stat BETA \
+    --stat beta \
     --fastscore \
     --bar-levels 1 \
-    --a1 A1 \
-    --a2 A2 \
-    --base /sc/arion/projects/paul_oreilly/data/GWASs/NonBiobanks/qced_data/ad/ad_hg19.txt.gz \
-    --binary-target F \
+    --a1 effect_allele \
+    --a2 other_allele \
+    --base /sc/arion/projects/paul_oreilly/data/GWASs/NonBiobanks/raw_data/ad/PGC3_Unpublished/xukbb/case_control/xukbb_case_control_eur_neff0.6_nsumstats1.txt.gz \
+    #--binary-target F \
     --clump-kb 1000kb \
     --clump-p 1.000000 \
     --clump-r2 0.100000 \
-    --x-range chr19:45000000-46000000 \
-    #--extract /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177-qc.snplist \
+    #--x-range chr19:45000000-46000000 \
+    --extract /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177-qc.snplist \
     --gtf /sc/arion/projects/paul_oreilly/lab/cotea02/project/data/reference/Homo_sapiens.GRCh37.75.gtf.gz \
-    --keep /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/afr_sample_ids_80pc.txt \
-    --msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/master_no_apoe.gmt \
+    #--keep /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/afr_sample_ids_80pc.txt \
+    #--msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/master_no_apoe.gmt \
     --num-auto 22 \
     --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/ad_case.control_prset_nothreshold_afr \
-    --pheno /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb_phenofile_forprset.txt \
-    --pheno-col ad_resid \
+    #--pheno /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb_phenofile_forprset.txt \
+    #--pheno-col ad_resid \
     --set-perm 10000 \
     --target /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177_chr1.22 \
     --thread 48 \
     --ultra  \
-    --background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/background_genes.txt \
+    #--background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/background_genes.txt \
     --wind-3 35kb \
     --wind-5 35kb
 

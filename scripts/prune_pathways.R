@@ -18,10 +18,12 @@ INPUT_FILES <- list(
   "MSigDB"     = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/msigdb/qced_data/c2.all.v2023.2.Hs.symbols.gmt_filtered.txt",
   "MGI"        = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/mgi/qced_data/MGI.gmt",
   "DSigDB"     = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/dsigdb/qced_data/DSigDB.gmt",
-  "ClinPGx"    = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/clinpgx/qced_data/pharmgkb_pathways.gmt"
-  #"Coexpression_WGCNA" = "path/to/Coexpression.gmt"
+  "ClinPGx"    = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/clinpgx/qced_data/pharmgkb_pathways.gmt",
+  "Coexpression_PHG"      = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/coexpression/phg_protein_modules/qced_data/phg_proteins.gmt",
+  "Coexpression_Johnson"  = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/coexpression/johnson2022_protein_modules/qced_data/johnson2022_proteins.gmt",
+  "Coexpression_snRNAseq" = "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/coexpression/snRNAseq_DLPFC_modules/snRNAseq_DLPFC_modules.gmt"
 )
-OUTPUT_DIR <- "output"
+OUTPUT_DIR <- "pruned_pathway_output"
 
 # Similarity thresholds
 THRESH_NEAR_DUP    <- 0.8   # min(containment) > this  => near_duplicate

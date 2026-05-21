@@ -2,7 +2,7 @@ library(data.table)
 library(tidyverse)
 library(readxl)
 
-excel_path <- "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/coexpression/snRNAseq_DLPFC_modules/40478_2025_2143_MOESM3_ESM.xlsx"
+excel_path <- "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/coexpression/snRNAseq_DLPFC_modules/raw_data/40478_2025_2143_MOESM3_ESM.xlsx"
 
 # Discover which sheets contain module assignment data
 all_sheets <- excel_sheets(excel_path)
@@ -39,7 +39,11 @@ print(summary(module_summary_filtered$n_genes))
 # Build GMT lines: name \t description \t gene1 \t gene2 \t ...
 gmt_lines <- module_summary_filtered %>%
   rowwise() %>%
-  mutate(line = paste(c(module_assignment, "na", unlist(genes)), collapse = "\t")) %>%
+  mutate(
+    line = paste(
+      c(module_assignment, "PLACEHOLDER", unlist(genes)), collapse = "\t"
+    )
+  ) %>%
   pull(line)
 
 out_path <- "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/coexpression/snRNAseq_DLPFC_modules/snRNAseq_DLPFC_modules.gmt"
