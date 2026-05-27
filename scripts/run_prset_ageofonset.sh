@@ -3,15 +3,15 @@
 
 #BSUB -L /bin/sh
 #BSUB -n 48
-#BSUB -J prsetexpr_nothreshold
+#BSUB -J prsetexpr_ageofonset
 #BSUB -R rusage[mem=3072]
 #BSUB -R select[mem>=3072]
 #BSUB -R span[hosts=1]
 #BSUB -q premium             # target queue for job execution
 #BSUB -W 48:00                # wall clock limit for job
 #BSUB -P acc_psychgen             # project to charge time
-#BSUB -o o.prsetexpr_nothreshold
-#BSUB -e e.prsetexpr_nothreshold
+#BSUB -o o.prsetexpr_ageofonset
+#BSUB -e e.prsetexpr_ageofonset
 
 ml R
 Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/projects/psychgen/cotea02_prset/PRSice_linux \
@@ -34,8 +34,8 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --keep /sc/arion/projects/paul_oreilly/data/ukb/genotyped/ukb18177-qc.fam \
     --msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/master_no_apoe.gmt \
     --num-auto 22 \
-    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results/ad_case.control_prset_nothreshold_eur \
-    --pheno /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/ad_phenotype_residuals.txt \
+    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results/ad_ageofonset_prset_nothreshold_eur \
+    --pheno /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/ad_ageofonset_phenotype_residuals.txt \
     --pheno-col AD_resid \
     --set-perm 10000 \
     --target /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177_chr1.22 \
@@ -44,27 +44,3 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/background_genes.txt:gene \
     --wind-3 35kb \
     --wind-5 35kb
-
-
-
-
-
-
-
-
-  /sc/arion/projects/psychgen/cotea02_prset/PRSice_linux \\
-    --a1 ${effect_allele} \\
-    --a2 ${other_allele} \\
-    --keep ${params.ukb_dir}/ukb_test_samples.txt \\
-    --out ${trait}_set_random${perm}.${rand_method} \\
-    --pheno ${params.ukb_dir}/ukb_phenofile_forprset.txt \\
-    --pheno-col ${trait}_resid \\
-    --pvalue ${pval_col} \\
-    --snp ${rsid_col} \\
-    --stat ${summary_statistic_name} \\
-    --${summary_statistic_type} \\
-    --target ${params.ukb_dir}/ukb18177_chr1.22 \\
-    --ultra \\
-
-  rm ${trait}_set_random${perm}.${rand_method}.best
-  rm ${trait}_set_random${perm}.${rand_method}.snp
