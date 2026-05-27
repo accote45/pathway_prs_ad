@@ -5,7 +5,7 @@
 
 
 # ancestry assignments: /sc/arion/projects/paul_oreilly/data/Biobanks/CrossBiobank_qc/GeneticDerived_Ancestry/admixture/data/UKB/ukb_ancestry_assignment.txt
-  ## will use ADMIXTURE proportion threshold of 80% to define AFR ancestry individual 
+  ## will use ADMIXTURE proportion threshold of 80% to define AFR ancestry individual
   n=7,170
 
 # create ancestry assignment files
@@ -30,6 +30,8 @@ library(data.table)
 library(tidyverse)
 library(dplyr)
 
+data_dir <- '/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data'
+
 # Read in all files
 ad_dementia   <- fread('/sc/arion/projects/paul_oreilly/lab/shared/pheno/AD_Dementia_28March2024.txt')
 apoe_geno     <- fread('/sc/arion/projects/paul_oreilly/lab/shared/UKB_allSample_APOE_genotype.txt')
@@ -43,6 +45,15 @@ dat <- ad_dementia %>%
   inner_join(covs, by = c("sample_id" = "IID")) %>%
   inner_join(age_sex_covar, by = c("sample_id" = "IID"))
 
+eur_id_file <- file.path(data_dir, 'eur_sample_ids_80pc.txt')
+eur_ids <- fread(eur_id_file, header = FALSE)$V1
+dat <- dat[dat$sample_id %in% eur_ids, ]
+dat <- dat[!grepl("e1", dat$APOE_genotype, fixed = TRUE), ]
+
+dat$Age2 <- dat$Age^2
+dat$APOE_genotype[dat$APOE_genotype == ""] <- NA
+dat$APOE_genotype <- as.factor(dat$APOE_genotype)
+
 table(dat$AD)
 
 # Basic demographics by AD status
@@ -50,24 +61,24 @@ dat %>%
   group_by(AD) %>%
   summarise(
     n = n(),
-    
+
     # Age
     age_mean = mean(Age, na.rm = TRUE),
     age_sd   = sd(Age, na.rm = TRUE),
-    
+
     # Sex (assuming 0 = male, 1 = female)
     n_female = sum(Sex == 1, na.rm = TRUE),
     pct_female = mean(Sex == 1, na.rm = TRUE) * 100,
-    
+
     # APOE e4
     n_e4_carrier  = sum(e4_copy >= 1, na.rm = TRUE),
     pct_e4_carrier = mean(e4_copy >= 1, na.rm = TRUE) * 100,
     n_e4_homozygous = sum(e4_copy == 2, na.rm = TRUE),
-    
+
     # APOE e2
     n_e2_carrier  = sum(e2_copy >= 1, na.rm = TRUE),
     pct_e2_carrier = mean(e2_copy >= 1, na.rm = TRUE) * 100,
-    
+
     .groups = "drop"
   )
 
@@ -82,7 +93,6 @@ chisq.test(table(dat$e4_copy, dat$AD))
 t.test(Age ~ AD, data = dat)
 
 
-
 # Basic demographics by case/control status
 get_demographics <- function(data, outcome_col) {
   data %>%
@@ -90,24 +100,24 @@ get_demographics <- function(data, outcome_col) {
     summarise(
       outcome = outcome_col,
       n = n(),
-      
+
       # Age
       age_mean = mean(Age, na.rm = TRUE),
       age_sd   = sd(Age, na.rm = TRUE),
-      
+
       # Sex (0 = male, 1 = female)
       n_female   = sum(Sex == 1, na.rm = TRUE),
       pct_female = mean(Sex == 1, na.rm = TRUE) * 100,
-      
+
       # APOE e4
       n_e4_carrier    = sum(e4_copy >= 1, na.rm = TRUE),
       pct_e4_carrier  = mean(e4_copy >= 1, na.rm = TRUE) * 100,
       n_e4_homozygous = sum(e4_copy == 2, na.rm = TRUE),
-      
+
       # APOE e2
       n_e2_carrier   = sum(e2_copy >= 1, na.rm = TRUE),
       pct_e2_carrier = mean(e2_copy >= 1, na.rm = TRUE) * 100,
-      
+
       .groups = "drop"
     )
 }
@@ -123,93 +133,50 @@ for (outcome in outcomes) {
 }
 
 
-}
 
+# ---------------------------------------------------------------------------
+# Adjust AD diagnosis for covariates, obtain residuals
+# ---------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Adjust outcomes for covariates, obtain residuals
-
-# Define covariates
-covariates <- c("Sex", "Age", "Age2", "Batch", "Centre", 
+# Define covariates (includes APOE genotype as factor)
+covariates <- c("Sex", "Age", "Age2", "Batch",
+                "APOE_genotype",
                 paste0("PC", 1:15))
 
 covariate_formula <- paste(covariates, collapse = " + ")
 
-
-
-
-
-
-
-
-
-
-
-# Create formula for covariates
-covariate_formula <- paste(covariates, collapse = " + ")
-
-# Function to get residuals from regression
-get_residuals <- function(outcome, data) {
-  # Create complete cases for this outcome
-  complete_data <- data[!is.na(data[[outcome]]), ]
-  
-  # Create formula
-  formula_str <- paste(outcome, "~", covariate_formula)
-  
-  # Fit model
-  model <- lm(as.formula(formula_str), data = complete_data)
-  
-  # Get residuals and put them back in original data structure
-  residuals_vector <- rep(NA, nrow(data))
-  residuals_vector[!is.na(data[[outcome]])] <- residuals(model)
-  
-  return(residuals_vector)
-}
-
-# For binary outcomes, use logistic regression
+# For binary outcomes, use logistic regression with Pearson residuals
 get_logistic_residuals <- function(outcome, data) {
-  # Create complete cases for this outcome
-  complete_data <- data[!is.na(data[[outcome]]), ]
-  
-  # Create formula
+  model_cols <- c(outcome, covariates)
+  complete_rows <- complete.cases(data[, model_cols, with = FALSE])
+  complete_data <- data[complete_rows, ]
+
   formula_str <- paste(outcome, "~", covariate_formula)
-  
-  # Fit logistic model
   model <- glm(as.formula(formula_str), data = complete_data, family = binomial)
-  
-  # Get Pearson residuals
+
   residuals_vector <- rep(NA, nrow(data))
-  residuals_vector[!is.na(data[[outcome]])] <- residuals(model, type = "pearson")
-  
+  residuals_vector[complete_rows] <- residuals(model, type = "pearson")
+
   return(residuals_vector)
 }
 
-# Apply logistic regression adjustment to binary outcomes
+# Apply logistic regression adjustment to AD
+binary_outcomes <- c("AD")
+
+final_pheno <- dat
+for (outcome in binary_outcomes) {
+  if (outcome %in% colnames(final_pheno)) {
+    cat("Adjusting", outcome, "for covariates using logistic regression...\n")
     final_pheno[[paste0(outcome, "_resid")]] <- get_logistic_residuals(outcome, final_pheno)
+  }
+}
 
 # Save the adjusted phenotype file
-write.table(final_pheno, 
-            file = '/sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb_phenofile_forprset.txt', 
-            sep = "\t", row.names = FALSE, quote = FALSE)
+out_path <- file.path(data_dir, 'ad_phenotype_residuals.txt')
+write.table(final_pheno, file = out_path, sep = "\t",
+row.names = FALSE, quote = FALSE)
 
 # Print summary of adjustments
 cat("\nAdjusted outcomes available:\n")
 resid_cols <- colnames(final_pheno)[grepl("_resid$", colnames(final_pheno))]
 cat(paste(resid_cols, collapse = "\n"))
-
-
-
-

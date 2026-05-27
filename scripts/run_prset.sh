@@ -24,24 +24,24 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --a1 effect_allele \
     --a2 other_allele \
     --base /sc/arion/projects/paul_oreilly/data/GWASs/NonBiobanks/raw_data/ad/PGC3_Unpublished/xukbb/case_control/xukbb_case_control_eur_neff0.6_nsumstats1.txt.gz \
-    #--binary-target F \
+    --binary-target F \
     --clump-kb 1000kb \
     --clump-p 1.000000 \
     --clump-r2 0.100000 \
-    #--x-range chr19:45000000-46000000 \
+    --x-range chr19:44409039-46412650 \
     --extract /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177-qc.snplist \
     --gtf /sc/arion/projects/paul_oreilly/lab/cotea02/project/data/reference/Homo_sapiens.GRCh37.75.gtf.gz \
-    #--keep /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/afr_sample_ids_80pc.txt \
-    #--msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/master_no_apoe.gmt \
+    --keep /sc/arion/projects/paul_oreilly/data/ukb/genotyped/ukb18177-qc.fam \
+    --msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/master_no_apoe.gmt \
     --num-auto 22 \
-    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/ad_case.control_prset_nothreshold_afr \
-    #--pheno /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb_phenofile_forprset.txt \
-    #--pheno-col ad_resid \
+    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results/ad_case.control_prset_nothreshold_eur \
+    --pheno /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/ad_phenotype_residuals.txt \
+    --pheno-col AD_resid \
     --set-perm 10000 \
     --target /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177_chr1.22 \
     --thread 48 \
     --ultra  \
-    #--background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/scripts/output/background_genes.txt \
+    --background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/background_genes.txt:gene \
     --wind-3 35kb \
     --wind-5 35kb
 

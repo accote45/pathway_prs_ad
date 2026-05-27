@@ -27,7 +27,7 @@ OUTPUT_DIR <- "pruned_pathway_output"
 
 # Similarity thresholds
 THRESH_NEAR_DUP    <- 0.8   # min(containment) > this  => near_duplicate
-THRESH_NESTED_MAX  <- 0.8   # max(containment) > this  \
+THRESH_NESTED_MAX  <- 0.7   # max(containment) > this  \
 THRESH_NESTED_MIN  <- 0.5   # min(containment) < this  |=> nested
 THRESH_SIZE_RATIO  <- 0.3   # size_ratio       > this  /
 
