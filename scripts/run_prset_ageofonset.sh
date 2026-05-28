@@ -8,7 +8,7 @@
 #BSUB -R select[mem>=3072]
 #BSUB -R span[hosts=1]
 #BSUB -q premium             # target queue for job execution
-#BSUB -W 48:00                # wall clock limit for job
+#BSUB -W 10:00                # wall clock limit for job
 #BSUB -P acc_psychgen             # project to charge time
 #BSUB -o o.prsetexpr_ageofonset
 #BSUB -e e.prsetexpr_ageofonset
