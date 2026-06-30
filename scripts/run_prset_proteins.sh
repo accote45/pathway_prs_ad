@@ -6,7 +6,7 @@
 #BSUB -R rusage[mem=3072]
 #BSUB -R select[mem>=3072]
 #BSUB -R span[hosts=1]
-#BSUB -q premium             # target queue for job execution
+#BSUB -q long             # target queue for job execution
 #BSUB -W 24:00                # wall clock limit for job
 #BSUB -P acc_psychgen             # project to charge time
 #BSUB -o o.prsetexpr_proteins
