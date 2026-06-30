@@ -5,6 +5,7 @@ library(tidyverse)
 library(data.table)
 
 dat <- fread('/sc/arion/projects/paul_oreilly/data/ukb/protein/qc/data/residualized_NPX_withNA.txt')
+dat <- fread('/sc/arion/projects/paul_oreilly/data/ukb/protein/qc/data/residualized_NPX_withNA_RINT.txt')
 
 table(is.na(dat$GFAP))
 FALSE  TRUE
