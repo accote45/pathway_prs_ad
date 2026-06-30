@@ -19,6 +19,7 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --beta \
     --stat beta \
     --fastscore \
+    --ignore-fid \
     --bar-levels 1 \
     --a1 effect_allele \
     --a2 other_allele \
