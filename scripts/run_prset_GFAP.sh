@@ -2,15 +2,15 @@
 
 #BSUB -L /bin/sh
 #BSUB -n 48
-#BSUB -J prsetexpr_proteins
+#BSUB -J prsetexpr_GFAP
 #BSUB -R rusage[mem=3072]
 #BSUB -R select[mem>=3072]
 #BSUB -R span[hosts=1]
 #BSUB -q long             # target queue for job execution
 #BSUB -W 24:00                # wall clock limit for job
 #BSUB -P acc_psychgen             # project to charge time
-#BSUB -o o.prsetexpr_proteins
-#BSUB -e e.prsetexpr_proteins
+#BSUB -o o.prsetexpr_GFAP
+#BSUB -e e.prsetexpr_GFAP
 
 ml R
 Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/projects/psychgen/cotea02_prset/PRSice_linux \
@@ -24,7 +24,7 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --a1 effect_allele \
     --a2 other_allele \
     --base /sc/arion/projects/paul_oreilly/data/GWASs/NonBiobanks/raw_data/ad/PGC3_Unpublished/xukbb/case_control/xukbb_case_control_eur_neff0.6_nsumstats1.txt.gz \
-    --binary-target F,F \
+    --binary-target F \
     --clump-kb 1000kb \
     --clump-p 1.000000 \
     --clump-r2 0.100000 \
@@ -34,9 +34,9 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --keep /sc/arion/projects/paul_oreilly/data/ukb/genotyped/ukb18177-qc.fam \
     --msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/master_no_apoe.gmt \
     --num-auto 22 \
-    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results/prset_nothreshold_eur \
-    --pheno /sc/arion/projects/paul_oreilly/data/ukb/protein/qc/data/residualized_NPX_withNA_RINT.txt \
-    --pheno-col NEFL,GFAP \
+    --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results/prset_nothreshold_eur_GFAP \
+    --pheno /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/residualized_NPX_withNA_RINT.txt \
+    --pheno-col GFAP \
     --set-perm 10000 \
     --target /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177_chr1.22 \
     --thread 48 \

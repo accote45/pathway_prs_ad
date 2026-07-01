@@ -9,7 +9,7 @@
 --   - One table per phenotype field, named fXXXX, with columns
 --     (sample_id, pheno, instance, array)
 --   - Participant table holds sample_id + withdrawn flag
---   - PCs stored as array in f22009 (array 0 = PC1, ... , array 39 = PC40)
+--   - PCs stored as array in f22009 (1-indexed: array 1 = PC1, ... array 40 = PC40)
 --
 -- Run with:
 --   sqlite3 ukb<ID>.db < extract_ukb_ad_mri.sql
@@ -30,26 +30,26 @@
 -- ─── Pivot the 20 genetic PCs from long → wide ────────────────────────────
 CREATE TEMP TABLE PCs AS
 SELECT sample_id,
-    CAST(MAX(CASE WHEN array = 0  THEN pheno END) AS REAL) AS PC1,
-    CAST(MAX(CASE WHEN array = 1  THEN pheno END) AS REAL) AS PC2,
-    CAST(MAX(CASE WHEN array = 2  THEN pheno END) AS REAL) AS PC3,
-    CAST(MAX(CASE WHEN array = 3  THEN pheno END) AS REAL) AS PC4,
-    CAST(MAX(CASE WHEN array = 4  THEN pheno END) AS REAL) AS PC5,
-    CAST(MAX(CASE WHEN array = 5  THEN pheno END) AS REAL) AS PC6,
-    CAST(MAX(CASE WHEN array = 6  THEN pheno END) AS REAL) AS PC7,
-    CAST(MAX(CASE WHEN array = 7  THEN pheno END) AS REAL) AS PC8,
-    CAST(MAX(CASE WHEN array = 8  THEN pheno END) AS REAL) AS PC9,
-    CAST(MAX(CASE WHEN array = 9  THEN pheno END) AS REAL) AS PC10,
-    CAST(MAX(CASE WHEN array = 10 THEN pheno END) AS REAL) AS PC11,
-    CAST(MAX(CASE WHEN array = 11 THEN pheno END) AS REAL) AS PC12,
-    CAST(MAX(CASE WHEN array = 12 THEN pheno END) AS REAL) AS PC13,
-    CAST(MAX(CASE WHEN array = 13 THEN pheno END) AS REAL) AS PC14,
-    CAST(MAX(CASE WHEN array = 14 THEN pheno END) AS REAL) AS PC15,
-    CAST(MAX(CASE WHEN array = 15 THEN pheno END) AS REAL) AS PC16,
-    CAST(MAX(CASE WHEN array = 16 THEN pheno END) AS REAL) AS PC17,
-    CAST(MAX(CASE WHEN array = 17 THEN pheno END) AS REAL) AS PC18,
-    CAST(MAX(CASE WHEN array = 18 THEN pheno END) AS REAL) AS PC19,
-    CAST(MAX(CASE WHEN array = 19 THEN pheno END) AS REAL) AS PC20
+    CAST(MAX(CASE WHEN array = 1  THEN pheno END) AS REAL) AS PC1,
+    CAST(MAX(CASE WHEN array = 2  THEN pheno END) AS REAL) AS PC2,
+    CAST(MAX(CASE WHEN array = 3  THEN pheno END) AS REAL) AS PC3,
+    CAST(MAX(CASE WHEN array = 4  THEN pheno END) AS REAL) AS PC4,
+    CAST(MAX(CASE WHEN array = 5  THEN pheno END) AS REAL) AS PC5,
+    CAST(MAX(CASE WHEN array = 6  THEN pheno END) AS REAL) AS PC6,
+    CAST(MAX(CASE WHEN array = 7  THEN pheno END) AS REAL) AS PC7,
+    CAST(MAX(CASE WHEN array = 8  THEN pheno END) AS REAL) AS PC8,
+    CAST(MAX(CASE WHEN array = 9  THEN pheno END) AS REAL) AS PC9,
+    CAST(MAX(CASE WHEN array = 10 THEN pheno END) AS REAL) AS PC10,
+    CAST(MAX(CASE WHEN array = 11 THEN pheno END) AS REAL) AS PC11,
+    CAST(MAX(CASE WHEN array = 12 THEN pheno END) AS REAL) AS PC12,
+    CAST(MAX(CASE WHEN array = 13 THEN pheno END) AS REAL) AS PC13,
+    CAST(MAX(CASE WHEN array = 14 THEN pheno END) AS REAL) AS PC14,
+    CAST(MAX(CASE WHEN array = 15 THEN pheno END) AS REAL) AS PC15,
+    CAST(MAX(CASE WHEN array = 16 THEN pheno END) AS REAL) AS PC16,
+    CAST(MAX(CASE WHEN array = 17 THEN pheno END) AS REAL) AS PC17,
+    CAST(MAX(CASE WHEN array = 18 THEN pheno END) AS REAL) AS PC18,
+    CAST(MAX(CASE WHEN array = 19 THEN pheno END) AS REAL) AS PC19,
+    CAST(MAX(CASE WHEN array = 20 THEN pheno END) AS REAL) AS PC20
 FROM f22009
 GROUP BY sample_id;
 
