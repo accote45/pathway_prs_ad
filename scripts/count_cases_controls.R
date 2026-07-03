@@ -68,14 +68,25 @@ reg <- data.table(
 
 # ---- helpers --------------------------------------------------------------
 # IIDs used in the regression, from the .best file (In_Regression == Yes).
+# The PRSet .best has one PRS column per pathway (17k), so for the full sample
+# it is tens of GB and cannot be memory-mapped. We therefore (a) read ONLY the
+# header line to locate the IID / In_Regression columns, then (b) stream those
+# columns with awk, filtering to In_Regression == "Yes" so only a tiny list of
+# IIDs is ever loaded into R.
 used_iids <- function(best_path) {
   if (!file.exists(best_path)) return(NULL)
-  b <- fread(best_path)
-  # PRSice .best has FID, IID, In_Regression, PRS...; IID is the sample id.
-  if (!"IID" %in% names(b)) return(NULL)
-  if ("In_Regression" %in% names(b))
-    b <- b[toupper(as.character(In_Regression)) == "YES"]
-  unique(as.character(b$IID))
+  hdr <- tryCatch(strsplit(trimws(readLines(best_path, n = 1)), "\\s+")[[1]],
+                  error = function(e) NULL)
+  if (is.null(hdr)) return(NULL)
+  ic <- match("In_Regression", hdr); ii <- match("IID", hdr)
+  if (is.na(ii)) return(NULL)
+  cmd <- if (is.na(ic))                     # no In_Regression col: take all IIDs
+    sprintf("awk 'NR>1 {print $%d}' %s", ii, shQuote(best_path))
+  else
+    sprintf("awk 'NR>1 && $%d==\"Yes\" {print $%d}' %s", ic, ii, shQuote(best_path))
+  v <- tryCatch(fread(cmd = cmd, header = FALSE)[[1]], error = function(e) NULL)
+  if (is.null(v)) return(NULL)
+  unique(as.character(v))
 }
 
 # sample_id -> AD (0/1) lookup from a phenotype/status file.
@@ -96,6 +107,8 @@ rows <- list()
 for (i in seq_len(nrow(reg))) {
   lab  <- reg$label[i]
   best <- file.path(resultsdir, paste0(reg$out[i], ".best"))
+  message("[", i, "/", nrow(reg), "] ", lab,
+          " -- streaming ", basename(best), " (large files take a few minutes) ...")
   iids <- used_iids(best)
   if (is.null(iids)) {
     message("SKIP (.best missing or unreadable): ", best)
