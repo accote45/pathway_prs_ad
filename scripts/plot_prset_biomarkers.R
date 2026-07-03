@@ -16,7 +16,7 @@
 # Usage (on Minerva, from the repo root, with a tidyverse-capable R):
 #   Rscript scripts/plot_prset_biomarkers.R \
 #     [--resultsdir <dir>] [--outdir figures/biomarkers] \
-#     [--perm 10000] [--top 15]
+#     [--perm 10000] [--top 10]
 # ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages({
@@ -33,7 +33,7 @@ resultsdir <- getarg("--resultsdir",
   "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results")
 outdir  <- getarg("--outdir", "figures/biomarkers")
 perm    <- as.integer(getarg("--perm", "10000"))
-top     <- as.integer(getarg("--top", "15"))
+top     <- as.integer(getarg("--top", "10"))
 godict  <- getarg("--godict",
   "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/gene_ontology/qced_data/aux_files/GO.dict")
 mgidict <- getarg("--mgidict",
