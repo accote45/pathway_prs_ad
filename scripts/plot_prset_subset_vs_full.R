@@ -131,6 +131,42 @@ rho_R2   <- suppressWarnings(cor(wide$R2_full, wide$R2_subset,
 rho_rank <- suppressWarnings(cor(wide$rank_full, wide$rank_subset,
                                  method = "spearman", use = "complete.obs"))
 
+# Kendall tau-b (tie-aware) over ALL pathways scored in both runs. This is the
+# global concordance statistic; run over all pathways (not a selected top-K) to
+# avoid range-restriction bias.
+tau_logP <- suppressWarnings(cor(wide$logP_full, wide$logP_subset,
+                                 method = "kendall", use = "complete.obs"))
+tau_R2   <- suppressWarnings(cor(wide$R2_full, wide$R2_subset,
+                                 method = "kendall", use = "complete.obs"))
+
+# Top-K replication: overlap of each run's top K + one-sided hypergeometric
+# (Fisher) test. Floor-robust because it uses set membership, not fine ranks.
+N_both <- nrow(wide)
+overlap_test <- function(K) {
+  K  <- min(K, N_both)
+  tf <- wide %>% arrange(rank_full)   %>% slice_head(n = K) %>% pull(Set)
+  ts <- wide %>% arrange(rank_subset) %>% slice_head(n = K) %>% pull(Set)
+  ov <- length(intersect(tf, ts))
+  # P(overlap >= ov): white = full top-K (K), black = N - K, draws = subset top-K (K)
+  p  <- phyper(ov - 1, m = K, n = N_both - K, k = K, lower.tail = FALSE)
+  data.frame(K = K, overlap = ov, expected = K * K / N_both,
+             jaccard = ov / (2 * K - ov), hyper_p = p)
+}
+topK_tbl <- do.call(rbind, lapply(c(50, 100, 200), overlap_test))
+h100 <- topK_tbl[which.min(abs(topK_tbl$K - 100)), ]
+
+# Rank-enrichment (the correct KS-style test): are the full run's top-K pathways
+# positioned higher in the SUBSET ranking than the rest? AUC = P(a full-top
+# pathway outranks a random non-top pathway in the subset); 0.5 = chance.
+K_enrich   <- min(100, N_both)
+top_full_K <- wide %>% arrange(rank_full) %>% slice_head(n = K_enrich) %>% pull(Set)
+enr_grp    <- wide$Set %in% top_full_K
+wt <- suppressWarnings(wilcox.test(wide$logP_subset[enr_grp],
+                                   wide$logP_subset[!enr_grp],
+                                   alternative = "greater"))
+auc_enrich <- unname(wt$statistic) / (sum(enr_grp) * sum(!enr_grp))
+p_enrich   <- wt$p.value
+
 wide <- wide %>% mutate(is_top = Set %in% union(top_full, top_subset))
 
 # reusable labeller for the top pathways
@@ -158,8 +194,9 @@ p1 <- ggplot(wide, aes(logP_full, logP_subset)) +
   labs(x = expression(-log[10]~"(competitive P), full"),
        y = expression(-log[10]~"(competitive P), subset"),
        title = "PRSet pathway signal: subset vs full (AD case/control)",
-       subtitle = sprintf("Spearman rho = %.2f; dotted line = permutation floor; top-%d overlap = %d/%d",
-                          rho_logP, top, overlap, top)) +
+       subtitle = sprintf("Kendall tau-b (all %d paths) = %.2f; top-100 overlap = %d (exp %.1f), hypergeometric P = %.1e",
+                          N_both, tau_logP, h100$overlap, h100$expected, h100$hyper_p),
+       caption = "Dotted lines = permutation floor (1/(perm+1)); labelled = union of each run's top pathways") +
   theme_minimal(base_size = 11)
 p1 <- add_labels(p1, wide, logP_full, logP_subset)
 ggsave(file.path(outdir, "prset_subset_vs_full_logP.pdf"), p1, width = 7.5, height = 7)
@@ -212,9 +249,44 @@ wide %>%
   arrange(rank_full) %>%
   write_csv(file.path(outdir, "prset_subset_vs_full_table.csv"))
 
-message("Done. Wrote 3 figures + prset_subset_vs_full_table.csv to ", outdir)
-message(sprintf("Spearman rho: logP = %.3f, R2 = %.3f, rank = %.3f | top-%d overlap = %d/%d",
-                rho_logP, rho_R2, rho_rank, top, overlap, top))
+# ---- statistics report ----------------------------------------------------
+stats_path <- file.path(outdir, "prset_subset_vs_full_stats.txt")
+writeLines(c(
+  "PRSet subset-1000 vs full concordance statistics (AD case/control)",
+  "===================================================================",
+  sprintf("Full   : %s (%d pathways)", full_path, nrow(full)),
+  sprintf("Subset : %s (%d pathways)", subset_path, nrow(subset)),
+  sprintf("Pathways scored in both (used below): %d", N_both),
+  "",
+  "1. Global rank concordance over ALL pathways",
+  sprintf("   Kendall tau-b : logP = %+.3f | R2 = %+.3f", tau_logP, tau_R2),
+  sprintf("   Spearman rho  : logP = %+.3f | R2 = %+.3f | rank = %+.3f",
+          rho_logP, rho_R2, rho_rank),
+  "",
+  "2. Top-K replication: overlap of each run's top K + one-sided hypergeometric P",
+  sprintf("   K=%-4d overlap=%-4d expected=%6.2f jaccard=%.3f hyper_P=%.3e",
+          topK_tbl$K, topK_tbl$overlap, topK_tbl$expected,
+          topK_tbl$jaccard, topK_tbl$hyper_p),
+  "",
+  sprintf("3. Rank enrichment (Mann-Whitney): full run's top-%d in the subset ranking",
+          K_enrich),
+  sprintf("   AUC = %.3f (0.5 = chance), one-sided P = %.3e", auc_enrich, p_enrich),
+  "",
+  "Notes",
+  " - Competitive P is floored at 1/(perm+1); heavy ties at the floor limit any",
+  "   P-based correlation. Kendall tau-b is tie-aware; the top-K hypergeometric",
+  "   test is floor-robust (set membership, not fine ranks) -> lead with it.",
+  " - R2 is NOT gene-set-size adjusted (competitive P is); R2 and P concordance",
+  "   answer subtly different questions.",
+  " - A two-sample KS on the marginal P/R2 distributions was deliberately NOT",
+  "   used: it is invariant to pathway labels and tests distribution shape, not",
+  "   concordance."
+), stats_path)
+message("Wrote stats report to ", stats_path)
+
+message("Done. Wrote 3 figures + prset_subset_vs_full_table.csv + stats report to ", outdir)
+message(sprintf("Kendall tau-b (logP) = %.3f | Spearman rho (logP) = %.3f | top-100 overlap = %d (exp %.1f, P = %.2e) | enrichment AUC = %.3f",
+                tau_logP, rho_logP, h100$overlap, h100$expected, h100$hyper_p, auc_enrich))
 if (!has_repel)
   message("ggrepel not installed: point labels use geom_text (may overlap). ",
           "install.packages('ggrepel') for cleaner labels.")
