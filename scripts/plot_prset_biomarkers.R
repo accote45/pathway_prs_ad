@@ -115,21 +115,26 @@ dat$Phenotype <- factor(dat$Phenotype, levels = pheno_levels)
 # then show how the SAME pathways score across the biomarker panel. The two AD
 # phenotypes never share a figure (AD diagnosis and age of onset stay separate).
 biomarker_labels <- c("GFAP", "NEFL", "Hippocampal volume", "WMH volume")
+# `n_top` is the per-anchor row cap; NA falls back to the global --top. Pathways
+# are ranked by competitive P, breaking ties on R2 / Num_SNP (both computed per
+# anchor phenotype), then the first n_top are kept.
 anchors <- data.frame(
   label = c("AD diagnosis", "Age of onset"),
   slug  = c("ad_dx", "ageofonset"),
+  n_top = c(20L, NA_integer_),
   stringsAsFactors = FALSE
 )
 
 logp <- function(p) -log10(pmax(p, floor_p))
 n_floor_total <- 0L
 
-make_anchor_figs <- function(anchor, slug) {
+make_anchor_figs <- function(anchor, slug, n_top) {
+  if (is.na(n_top)) n_top <- top
   cols <- c(anchor, biomarker_labels)          # anchor column first
   sub  <- dat %>% filter(Phenotype %in% cols)
   sub$Phenotype <- factor(sub$Phenotype, levels = cols)
 
-  # rows = the anchor phenotype's top-N pathways (ranked by its own comp. P)
+  # rows = the anchor phenotype's top-N pathways (competitive P, ties on R2/SNP)
   anchor_rank <- sub %>%
     filter(Phenotype == anchor) %>%
     mutate(at_floor   = Competitive.P <= floor_p + 1e-12,
@@ -137,7 +142,7 @@ make_anchor_figs <- function(anchor, slug) {
            R2_per_SNP = R2 / Num_SNP) %>%
     arrange(Competitive.P, desc(R2_per_SNP)) %>%
     mutate(rank = row_number()) %>%
-    slice_head(n = top)
+    slice_head(n = n_top)
   top_sets <- anchor_rank$Set
   if (!length(top_sets)) { message("No pathways for anchor ", anchor); return(invisible()) }
 
@@ -158,7 +163,7 @@ make_anchor_figs <- function(anchor, slug) {
     scale_fill_viridis_c(option = "D", name = expression(-log[10]~"(comp. P)")) +
     scale_y_discrete(labels = function(x) prettify_set(x)) +
     labs(x = NULL, y = NULL,
-         title = sprintf("Top %d %s pathways across the biomarker panel", top, anchor),
+         title = sprintf("Top %d %s pathways across the biomarker panel", n_top, anchor),
          subtitle = paste0("Rows = ", anchor,
                            " top pathways; * = tied at permutation floor")) +
     theme_minimal(base_size = 10) +
@@ -181,7 +186,7 @@ make_anchor_figs <- function(anchor, slug) {
     scale_colour_viridis_c(option = "C", name = expression(PRS~R^2)) +
     scale_size_continuous(name = "N SNPs", range = c(2, 7)) +
     labs(x = expression(-log[10]~"(competitive P)"), y = NULL,
-         title = sprintf("Top %d %s pathways (competitive P)", top, anchor),
+         title = sprintf("Top %d %s pathways (competitive P)", n_top, anchor),
          subtitle = "Dashed line = permutation floor (1/(perm+1))") +
     theme_minimal(base_size = 10) +
     theme(panel.grid.major.y = element_blank())
@@ -201,7 +206,7 @@ make_anchor_figs <- function(anchor, slug) {
 }
 
 message("Building anchored figures...")
-invisible(Map(make_anchor_figs, anchors$label, anchors$slug))
+invisible(Map(make_anchor_figs, anchors$label, anchors$slug, anchors$n_top))
 
 message("Done. Wrote 2 heatmaps + 2 lollipops + 2 CSVs to ", outdir)
 if (n_floor_total > 0)
