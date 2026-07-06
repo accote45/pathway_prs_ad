@@ -29,7 +29,39 @@ Rscript create_background_withapoe.R
 
 # 3. Full-sample PRSet run
 bsub < run_prset_withapoe.sh
+
+# 4. Compare APOE-included vs APOE-excluded pathway results
+Rscript plot_prset_withapoe_vs_noapoe.R
 ```
+
+## Comparison figures (`plot_prset_withapoe_vs_noapoe.R`)
+
+Compares the APOE-included `.summary` against the original APOE-excluded run
+(`scripts/run_prset.sh` output) for AD case/control. Unlike the subset-vs-full
+comparison, divergence is the *expected* result: including APOE routes the
+dominant chr19 signal into every pathway containing an APOE-region gene, so
+those pathways gain competitive signal. Writes to `figures/withapoe_vs_noapoe/`:
+
+- `prset_withapoe_vs_noapoe_logP.pdf` — −log10(competitive P) concordance scatter,
+  APOE-excluded vs APOE-included, permutation floor drawn, top gainers in colour.
+- `prset_withapoe_vs_noapoe_R2.pdf` — same for PRS R².
+- `prset_withapoe_vs_noapoe_gainers_dumbbell.pdf` — the pathways that gain the most
+  competitive signal when APOE is scored (the APOE-driven sets).
+- `prset_withapoe_vs_noapoe_table.csv` — per-pathway P/R2/rank in each run + deltas,
+  sorted by `logP_delta`.
+- `prset_withapoe_vs_noapoe_stats.txt` — Kendall tau-b / Spearman rho and top-K
+  hypergeometric overlap tests.
+
+```sh
+# defaults point at the cluster results dir; override for local runs
+Rscript plot_prset_withapoe_vs_noapoe.R \
+  --noapoe   <ad_case.control_prset_nothreshold_eur.summary> \
+  --withapoe <ad_case.control_prset_nothreshold_eur_withapoe.summary> \
+  --outdir figures/withapoe_vs_noapoe
+```
+
+GO/MP term names come from the `--godict`/`--mgidict` files on Minerva; run there
+for readable pathway labels (locally, terms fall back to raw GO/MP IDs).
 
 ## New files written to `data/`
 
