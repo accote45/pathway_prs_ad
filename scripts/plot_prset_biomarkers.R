@@ -44,16 +44,24 @@ floor_p    <- 1 / (perm + 1)
 floor_logp <- -log10(floor_p)
 
 # ---- phenotype panel ------------------------------------------------------
-# key -> prset_nothreshold_eur_<key>.summary ; label + group for display.
+# Each row -> one PRSet .summary file (APOE excluded, full EUR sample).
+# `file` is the summary basename; biomarkers follow prset_nothreshold_eur_<key>,
+# while AD diagnosis / age-of-onset use their own out-prefixes.
 pheno_tbl <- data.frame(
-  key   = c("GFAP", "NEFL", "Hipp_Mean_Vol", "WMH_Vol"),
-  label = c("GFAP", "NEFL", "Hippocampal volume", "WMH volume"),
-  group = c("Plasma protein", "Plasma protein", "MRI", "MRI"),
+  label = c("AD diagnosis", "Age of onset", "GFAP", "NEFL",
+            "Hippocampal volume", "WMH volume"),
+  group = c("AD phenotype", "AD phenotype", "Plasma protein", "Plasma protein",
+            "MRI", "MRI"),
+  file  = c("ad_case.control_prset_nothreshold_eur.summary",
+            "ad_ageofonset_prset_nothreshold_eur.summary",
+            "prset_nothreshold_eur_GFAP.summary",
+            "prset_nothreshold_eur_NEFL.summary",
+            "prset_nothreshold_eur_Hipp_Mean_Vol.summary",
+            "prset_nothreshold_eur_WMH_Vol.summary"),
   stringsAsFactors = FALSE
 )
-pheno_tbl$path <- file.path(resultsdir,
-  sprintf("prset_nothreshold_eur_%s.summary", pheno_tbl$key))
-# display order: proteins first, then MRI, in table order
+pheno_tbl$path <- file.path(resultsdir, pheno_tbl$file)
+# display order: AD phenotypes first, then proteins, then MRI, in table order
 pheno_levels <- pheno_tbl$label
 
 # ---- pretty pathway labels (GO/MGI dicts optional) ------------------------
@@ -128,7 +136,7 @@ p1 <- ggplot(r1, aes(logP, Set_ord)) +
   scale_size_continuous(name = "N SNPs", range = c(2, 7)) +
   facet_wrap(~ Phenotype, scales = "free_y", ncol = 2) +
   labs(x = expression(-log[10]~"(competitive P)"), y = NULL,
-       title = sprintf("Top %d pathways per biomarker (competitive P)", top),
+       title = sprintf("Top %d pathways per phenotype (competitive P)", top),
        subtitle = "Dashed line = permutation floor (1/(perm+1))") +
   theme_minimal(base_size = 10) +
   theme(panel.grid.major.y = element_blank())
@@ -157,15 +165,17 @@ p2 <- ggplot(hm, aes(Phenotype, Set, fill = logP)) +
   scale_fill_viridis_c(option = "D", name = expression(-log[10]~"(comp. P)")) +
   scale_y_discrete(labels = function(x) prettify_set(x)) +
   labs(x = NULL, y = NULL,
-       title = "Pathway x biomarker competitive-P landscape",
-       subtitle = "Union of each biomarker's top pathways; * = tied at permutation floor") +
+       title = "Pathway x phenotype competitive-P landscape",
+       subtitle = "Union of each phenotype's top pathways; * = tied at permutation floor") +
   theme_minimal(base_size = 10) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1),
         panel.grid = element_blank())
 
-n_sets <- length(set_order)
+n_sets  <- length(set_order)
+n_pheno <- length(pheno_levels)
 ggsave(file.path(outdir, "prset_biomarkers_heatmap.pdf"), p2,
-       width = 8, height = max(4, 0.28 * n_sets + 2), limitsize = FALSE)
+       width = max(8, 1.4 * n_pheno + 2),
+       height = max(4, 0.28 * n_sets + 2), limitsize = FALSE)
 
 # ---- ranked table ---------------------------------------------------------
 ranked %>%
