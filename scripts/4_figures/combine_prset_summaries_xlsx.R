@@ -75,8 +75,18 @@ prettify_set <- function(set) {
 }
 
 # Excel sheet names: <=31 chars, no : \ / ? * [ ] and must be unique.
+# File names share the boilerplate "prset_nothreshold_eur" token, and the three
+# AD-diagnosis runs share one basename (they differ only by a suffix / their
+# parent folder: main / subset1000 / withapoe). Strip the boilerplate, and fall
+# back to the parent folder name when stripping leaves nothing (e.g. the
+# _superseded run), so tabs stay short, meaningful, and unique.
 sheet_name <- function(paths) {
-  nm <- file_path_sans_ext(basename(paths))
+  base   <- file_path_sans_ext(basename(paths))
+  parent <- basename(dirname(paths))
+  nm <- gsub("prset_nothreshold_eur", "", base)   # drop shared boilerplate
+  nm <- gsub("[._]{2,}", "_", nm)                  # collapse doubled separators
+  nm <- gsub("^[._]+|[._]+$", "", nm)              # trim leading/trailing seps
+  nm <- ifelse(nm == "", parent, nm)               # nothing left -> use folder
   nm <- gsub("[:\\\\/?*\\[\\]]", "_", nm)
   nm <- substr(nm, 1, 31)
   make.unique(nm, sep = "_")
