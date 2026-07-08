@@ -59,7 +59,3 @@ background_path <- "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/d
 writeLines(all_genes, background_path)
 
 cat("Background genes file created:", length(all_genes), "unique genes\n")
-
-
-
-

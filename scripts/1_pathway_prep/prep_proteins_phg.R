@@ -62,15 +62,3 @@ for (i in seq_len(nrow(module_summary_filtered))) {
 
 close(file_conn)
 message("Written ", n_written, " gene sets to: ", out_path)
-
-
-
-
-
-
-
-
-
-
-
-

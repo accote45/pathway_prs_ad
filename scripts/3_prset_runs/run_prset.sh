@@ -1,6 +1,3 @@
-
-
-
 #BSUB -L /bin/sh
 #BSUB -n 48
 #BSUB -J prsetexpr_nothreshold
@@ -44,27 +41,3 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/background_genes.txt:gene \
     --wind-3 35kb \
     --wind-5 35kb
-
-
-
-
-
-
-
-
-  /sc/arion/projects/psychgen/cotea02_prset/PRSice_linux \\
-    --a1 ${effect_allele} \\
-    --a2 ${other_allele} \\
-    --keep ${params.ukb_dir}/ukb_test_samples.txt \\
-    --out ${trait}_set_random${perm}.${rand_method} \\
-    --pheno ${params.ukb_dir}/ukb_phenofile_forprset.txt \\
-    --pheno-col ${trait}_resid \\
-    --pvalue ${pval_col} \\
-    --snp ${rsid_col} \\
-    --stat ${summary_statistic_name} \\
-    --${summary_statistic_type} \\
-    --target ${params.ukb_dir}/ukb18177_chr1.22 \\
-    --ultra \\
-
-  rm ${trait}_set_random${perm}.${rand_method}.best
-  rm ${trait}_set_random${perm}.${rand_method}.snp

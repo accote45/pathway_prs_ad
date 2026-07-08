@@ -49,11 +49,3 @@ gmt_lines <- module_summary_filtered %>%
 out_path <- "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/coexpression/snRNAseq_DLPFC_modules/snRNAseq_DLPFC_modules.gmt"
 writeLines(gmt_lines, out_path)
 message("Written ", length(gmt_lines), " gene sets to: ", out_path)
-
-
-
-
-
-
-
-

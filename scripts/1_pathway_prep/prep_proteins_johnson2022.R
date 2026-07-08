@@ -14,7 +14,6 @@ ensembl_path <- paste0(
 
 df <- read_excel(excel_path, sheet = 5, skip = 2)
 colnames(df) <- tolower(colnames(df))
-print(colnames(df))
 
 # Second column contains "SYMBOL|UniProtID" — extract the gene symbol
 id_col <- colnames(df)[2]
@@ -23,7 +22,7 @@ df <- df %>%
 
 ensembl <- fread(ensembl_path)
 
-# Update these if column names differ from what's printed above
+# Column holding the gene symbol (derived above) and the WGCNA module label.
 gene_col   <- "gene_symbol"
 module_col <- "net$colors"
 

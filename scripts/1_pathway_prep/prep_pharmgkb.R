@@ -38,9 +38,6 @@ pathway_files <- list.files("/sc/arion/projects/paul_oreilly/data/Functional_Gen
 pathways <- lapply(pathway_files, parse_pharmgkb_pathway)
 pathways <- Filter(function(x) !is.null(x) && length(x$genes) > 0, pathways)
 
-length(pathways)
-pathways[[1]]
-
 write_gmt <- function(pathways, outfile) {
   lines <- sapply(pathways, function(p) {
     paste(c(p$id, p$name, p$genes), collapse = "\t")
@@ -51,6 +48,3 @@ write_gmt <- function(pathways, outfile) {
 out_dir <- "/sc/arion/projects/paul_oreilly/data/Functional_Genomics/pathway_databases/clinpgx/qced_data"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 write_gmt(pathways, file.path(out_dir, "pharmgkb_pathways.gmt"))
-
-# Verify
-readLines(file.path(out_dir, "pharmgkb_pathways.gmt"), n = 2)
