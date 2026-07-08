@@ -8,10 +8,10 @@
 # below; AFR is kept for other analyses.
 #   awk 'NR>1 && $4=="AFR" {print $2}' \
 #     /sc/arion/projects/paul_oreilly/data/Biobanks/CrossBiobank_qc/GeneticDerived_Ancestry/admixture/data/UKB/ukb_ancestry_assignment.txt \
-#     > /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/afr_sample_ids_80pc.txt
+#     > /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/samples/afr_sample_ids_80pc.txt
 #   awk 'NR>1 && $4=="EUR" {print $2}' \
 #     /sc/arion/projects/paul_oreilly/data/Biobanks/CrossBiobank_qc/GeneticDerived_Ancestry/admixture/data/UKB/ukb_ancestry_assignment.txt \
-#     > /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/eur_sample_ids_80pc.txt
+#     > /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/samples/eur_sample_ids_80pc.txt
 
 library(data.table)
 library(tidyverse)
@@ -32,7 +32,7 @@ dat <- ad_dementia %>%
   inner_join(covs, by = c("sample_id" = "IID")) %>%
   inner_join(age_sex_covar, by = c("sample_id" = "IID"))
 
-eur_id_file <- file.path(data_dir, 'eur_sample_ids_80pc.txt')
+eur_id_file <- file.path(data_dir, 'samples', 'eur_sample_ids_80pc.txt')
 eur_ids <- fread(eur_id_file, header = FALSE)$V1
 dat <- dat[dat$sample_id %in% eur_ids, ]
 dat <- dat[!grepl("e1", dat$APOE_genotype, fixed = TRUE), ]
@@ -79,7 +79,7 @@ for (outcome in binary_outcomes) {
 }
 
 # Save the adjusted phenotype file
-out_path <- file.path(data_dir, 'ad_phenotype_residuals.txt')
+out_path <- file.path(data_dir, 'phenotypes', 'ad_phenotype_residuals.txt')
 write.table(final_pheno, file = out_path, sep = "\t",
 row.names = FALSE, quote = FALSE)
 

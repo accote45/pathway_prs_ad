@@ -17,7 +17,7 @@ library(data.table)
 
 data_dir <- "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data"
 
-mri <- fread(file.path(data_dir, "UKB_AD_MRI_FSL.csv"))
+mri <- fread(file.path(data_dir, "raw_extracts", "UKB_AD_MRI_FSL.csv"))
 setnames(mri, "IID", "sample_id")
 
 # --- same QC as the phenotype script ---
@@ -58,7 +58,7 @@ for (cn in audit_cols) {
 }
 cat("\n")
 
-pdf(file.path(data_dir, "mri_residual_qqplots.pdf"), width = 7, height = 5)
+pdf(file.path(data_dir, "qc_diagnostics", "mri_residual_qqplots.pdf"), width = 7, height = 5)
 
 cat(sprintf("%-18s %8s %8s %10s   %s\n",
             "phenotype", "skew", "e.kurt", "n", "verdict"))
@@ -106,4 +106,4 @@ for (nm in names(pheno_spec)) {
 }
 
 dev.off()
-cat("\nQ-Q plots written to:", file.path(data_dir, "mri_residual_qqplots.pdf"), "\n")
+cat("\nQ-Q plots written to:", file.path(data_dir, "qc_diagnostics", "mri_residual_qqplots.pdf"), "\n")

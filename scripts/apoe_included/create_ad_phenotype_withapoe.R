@@ -33,7 +33,7 @@ dat <- ad_dementia %>%
   inner_join(covs, by = c("sample_id" = "IID")) %>%
   inner_join(age_sex_covar, by = c("sample_id" = "IID"))
 
-eur_id_file <- file.path(data_dir, 'eur_sample_ids_80pc.txt')
+eur_id_file <- file.path(data_dir, 'samples', 'eur_sample_ids_80pc.txt')
 eur_ids <- fread(eur_id_file, header = FALSE)$V1
 dat <- dat[dat$sample_id %in% eur_ids, ]
 # e1 alleles are still dropped (rare / QC), matching the original pipeline.
@@ -81,7 +81,7 @@ for (outcome in binary_outcomes) {
 }
 
 # Save the adjusted phenotype file (APOE-included residual)
-out_path <- file.path(data_dir, 'ad_phenotype_residuals_withapoe.txt')
+out_path <- file.path(data_dir, 'phenotypes', 'ad_phenotype_residuals_withapoe.txt')
 write.table(final_pheno, file = out_path, sep = "\t",
             row.names = FALSE, quote = FALSE)
 

@@ -28,7 +28,7 @@ n_controls <- 1000
 # Read the full phenotype file produced by create_ad_phenotype.R. It already
 # carries AD status and the full-sample residual AD_resid.
 # ---------------------------------------------------------------------------
-full_pheno <- fread(file.path(data_dir, 'ad_phenotype_residuals.txt'))
+full_pheno <- fread(file.path(data_dir, 'phenotypes', 'ad_phenotype_residuals.txt'))
 
 # Only individuals with a usable (non-NA) full-sample residual are eligible.
 dat <- full_pheno[!is.na(full_pheno$AD_resid), ]
@@ -55,12 +55,12 @@ cat("Subset drawn: ",
 # Write outputs
 # ---------------------------------------------------------------------------
 # Phenotype file (same layout as ad_phenotype_residuals.txt; PRSet reads AD_resid)
-out_pheno <- file.path(data_dir, 'ad_phenotype_residuals_subset1000.txt')
+out_pheno <- file.path(data_dir, 'phenotypes', 'ad_phenotype_residuals_subset1000.txt')
 write.table(sub, file = out_pheno, sep = "\t", row.names = FALSE, quote = FALSE)
 
 # Keep file for --keep (FID IID). UKB fam files use FID == IID.
 keep <- data.table(FID = sub$sample_id, IID = sub$sample_id)
-out_keep <- file.path(data_dir, 'ad_subset1000_keep.txt')
+out_keep <- file.path(data_dir, 'samples', 'ad_subset1000_keep.txt')
 write.table(keep, file = out_keep, sep = "\t", row.names = FALSE,
             col.names = FALSE, quote = FALSE)
 

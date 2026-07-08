@@ -13,8 +13,8 @@
 # Output: background_genes_withapoe.txt
 # ---------------------------------------------------------------------------
 
-master_path     <- "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/master.gmt"
-background_path <- "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/background_genes_withapoe.txt"
+master_path     <- "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/pathways/master.gmt"
+background_path <- "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/pathways/background_genes_withapoe.txt"
 
 master_lines <- readLines(master_path)
 

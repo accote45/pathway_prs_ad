@@ -34,17 +34,17 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --clump-r2 0.100000 \
     --x-range chr19:44409039-46412650 \
     --extract /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177-qc.snplist \
-    --gtf /sc/arion/projects/paul_oreilly/lab/cotea02/project/data/reference/Homo_sapiens.GRCh37.75.gtf.gz \
-    --keep /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/ad_subset1000_keep.txt \
-    --msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/master_no_apoe.gmt \
+    --gtf /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/reference/Homo_sapiens.GRCh37.75.gtf.gz \
+    --keep /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/samples/ad_subset1000_keep.txt \
+    --msigdb /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/pathways/master_no_apoe.gmt \
     --num-auto 22 \
     --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results/ad_case.control_prset_nothreshold_eur_subset1000 \
-    --pheno /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/ad_phenotype_residuals_subset1000.txt \
+    --pheno /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/phenotypes/ad_phenotype_residuals_subset1000.txt \
     --pheno-col AD_resid \
     --set-perm 10000 \
     --target /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177_chr1.22 \
     --thread 48 \
     --ultra  \
-    --background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/background_genes.txt:gene \
+    --background /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/pathways/background_genes.txt:gene \
     --wind-3 35kb \
     --wind-5 35kb

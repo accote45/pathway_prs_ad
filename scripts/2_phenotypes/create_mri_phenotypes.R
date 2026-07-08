@@ -15,7 +15,7 @@ data_dir <- "/sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data"
 #-----------------------------------------------------------
 # 1. Load MRI extract
 #-----------------------------------------------------------
-mri <- fread(file.path(data_dir, "UKB_AD_MRI_FSL.csv"))
+mri <- fread(file.path(data_dir, "raw_extracts", "UKB_AD_MRI_FSL.csv"))
 
 # Standardise the sample identifier used downstream (PRSice --ignore-fid keys
 # on IID; the SQL extract already emits FID == IID == sample_id).
@@ -127,7 +127,7 @@ resid_table_rint <- rint_dt(resid_table)
 #-----------------------------------------------------------
 setnames(resid_table_rint, "sample_id", "IID")
 
-out_path <- file.path(data_dir, "mri_phenotypes_resid_RINT.txt")
+out_path <- file.path(data_dir, "phenotypes", "mri_phenotypes_resid_RINT.txt")
 fwrite(resid_table_rint, out_path,
        sep = "\t", quote = FALSE, na = "NA",
        col.names = TRUE, row.names = FALSE)

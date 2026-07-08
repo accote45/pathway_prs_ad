@@ -60,9 +60,9 @@ reg <- data.table(
           "prset_nothreshold_eur_GFAP", "prset_nothreshold_eur_NEFL",
           "prset_nothreshold_eur_Hipp_Mean_Vol", "prset_nothreshold_eur_WMH_Vol"),
   ad_file = c(
-    file.path(datadir, "ad_phenotype_residuals.txt"),
-    file.path(datadir, "ad_phenotype_residuals_subset1000.txt"),
-    file.path(datadir, "ad_phenotype_residuals_withapoe.txt"),
+    file.path(datadir, "phenotypes", "ad_phenotype_residuals.txt"),
+    file.path(datadir, "phenotypes", "ad_phenotype_residuals_subset1000.txt"),
+    file.path(datadir, "phenotypes", "ad_phenotype_residuals_withapoe.txt"),
     NA_character_, NA_character_, NA_character_, NA_character_, NA_character_)
 )
 

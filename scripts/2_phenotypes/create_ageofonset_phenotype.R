@@ -23,7 +23,7 @@ dat <- ad_dementia %>%
   inner_join(covs, by = c("sample_id" = "IID")) %>%
   inner_join(age_sex_covar, by = c("sample_id" = "IID"))
 
-eur_id_file <- file.path(data_dir, 'eur_sample_ids_80pc.txt')
+eur_id_file <- file.path(data_dir, 'samples', 'eur_sample_ids_80pc.txt')
 eur_ids <- fread(eur_id_file, header = FALSE)$V1
 dat <- dat[dat$sample_id %in% eur_ids, ]
 dat <- dat[!grepl("e1", dat$APOE_genotype, fixed = TRUE), ]
@@ -71,7 +71,7 @@ get_linear_residuals <- function(outcome, data) {
 cat("Adjusting age_of_onset for covariates using linear regression...\n")
 cases$age_of_onset_resid <- get_linear_residuals("age_of_onset", cases)
 
-out_path <- file.path(data_dir, 'ad_ageofonset_phenotype_residuals.txt')
+out_path <- file.path(data_dir, 'phenotypes', 'ad_ageofonset_phenotype_residuals.txt')
 write.table(cases, file = out_path, sep = "\t", row.names = FALSE, quote = FALSE)
 
 cat("\nSaved", nrow(cases), "AD cases to:", out_path, "\n")
