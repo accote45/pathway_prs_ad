@@ -36,7 +36,7 @@ Rscript /sc/arion/projects/psychgen/cotea02_prset/PRSice.R --prsice /sc/arion/pr
     --num-auto 22 \
     --out /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/results/ad_ageofonset_prset_nothreshold_eur \
     --pheno /sc/arion/projects/paul_oreilly/lab/cotea02/pathway_prs_ad/data/ad_ageofonset_phenotype_residuals.txt \
-    --pheno-col AD_resid \
+    --pheno-col age_of_onset_resid \
     --set-perm 10000 \
     --target /sc/arion/projects/psychgen/cotea02_prset/geneoverlap_nf/data/ukb/ukb18177_chr1.22 \
     --thread 48 \

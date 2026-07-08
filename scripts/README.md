@@ -65,8 +65,3 @@ floor at 1/(perm+1)):
   Self-contained with its own `README.md`, phenotype, background, run, and comparison scripts.
 - **`sinai_adrc/`** — genotype QC + prep for a Mount Sinai ADRC replication cohort (WIP);
   not part of the UKB PRSet pipeline. `paths` is a scratch note of ADRC data locations.
-
-## Known issue to check
-`2_phenotypes/create_ageofonset_phenotype.R` writes the residual column as
-`age_of_onset_resid`, but `3_prset_runs/run_prset_ageofonset.sh` reads
-`--pheno-col AD_resid`. Confirm the age-of-onset run used the intended column.
