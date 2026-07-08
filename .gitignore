@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# LSF job logs (produced on the cluster next to the run scripts)
+e.prsetexpr_*
+o.prsetexpr_*
+
+# archived superseded job scripts / logs (kept on the cluster only)
+_archive/
